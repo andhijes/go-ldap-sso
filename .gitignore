@@ -37,4 +37,4 @@ Thumbs.db
 /certs/
 
 
-.env
+*.env

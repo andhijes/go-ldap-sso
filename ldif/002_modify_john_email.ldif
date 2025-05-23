@@ -1,0 +1,4 @@
+dn: uid=johndoe,ou=users,dc=example,dc=org
+changetype: modify
+add: mail
+mail: johndoe@example.org

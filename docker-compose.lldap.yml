@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  lldap_postgres:
+    image: postgres:14
+    container_name: lldap_postgres
+    environment:
+      POSTGRES_DB: lldap
+      POSTGRES_USER: lldap
+      POSTGRES_PASSWORD: lldap
+    ports:
+      - "5433:5432"  # Port PostgreSQL di-host (5433) -> container (5432)
+    volumes:
+      - lldap_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "lldap"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ldap-net
+
+  lldap:
+    image: lldap/lldap:latest
+    container_name: lldap
+    restart: unless-stopped
+    ports:
+      - "3890:3890"    # LDAP port
+      - "17170:17170"  # Web UI port
+    environment:
+      - LLDAP_LDAP_USER_DN=uid=admin,ou=people,dc=example,dc=org
+      - LLDAP_LDAP_USER_PASS=admin1234
+      - LLDAP_LDAP_BASE_DN=dc=example,dc=org
+      - LLDAP_JWT_SECRET=7x!A2#p8*Gz$Y5v9qL6KdNcRfTjWmHnP
+      - LLDAP_DATABASE_URL=postgres://lldap:lldap@lldap_postgres:5432/lldap
+    depends_on:
+      lldap_postgres:
+        condition: service_healthy
+    networks:
+      - ldap-net
+
+networks:
+  ldap-net:
+    driver: bridge
+
+volumes:
+  lldap_postgres_data:

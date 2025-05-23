@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="gradient-bg text-white shadow-lg">
+            <div class="container mx-auto px-6 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <i class="fas fa-shield-alt text-2xl"></i>
+                        <span class="text-xl font-semibold">SecureApp</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/logout" class="px-3 py-2 rounded hover:bg-blue-700 transition">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-6 py-8">
+            <div class="max-w-4xl mx-auto">
+                <!-- Welcome Card -->
+                <div class="gradient-bg text-white rounded-xl p-6 mb-8 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+                            <i class="fas fa-user-check text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold">Welcome, <span id="user-name">User</span>!</h1>
+                            <p class="opacity-90">You've successfully authenticated</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Info Cards -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h2 class="text-lg font-semibold">Email Address</h2>
+                        </div>
+                        <p id="user-email" class="text-gray-700">loading...</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <h2 class="text-lg font-semibold">User ID</h2>
+                        </div>
+                        <p id="user-id" class="text-gray-700">loading...</p>
+                    </div>
+                </div>
+
+                <!-- Authentication Details -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-key mr-2 text-purple-600"></i>
+                            Authentication Details
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Login Method</label>
+                            <p id="login-method" class="text-gray-800 font-medium">Checking...</p>
+                        </div>
+                        <div id="saml-fields" class="hidden">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Name</label>
+                                <p id="user-display-name" class="text-gray-800">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Attributes (SAML only) -->
+                <div id="all-attributes-section" class="bg-white rounded-xl shadow-md overflow-hidden hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-list-ul mr-2 text-blue-600"></i>
+                            All SAML Attributes
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attribute</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attributes-table" class="bg-white divide-y divide-gray-200">
+                                    <!-- Filled by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 py-6">
+            <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+                <p>© 2023 SecureApp. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we have user data in the context
+            fetch('/api/auth/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    if (data.email) {
+                        // LDAP login
+                        document.getElementById('login-method').textContent = 'LDAP (JWT)';
+                        document.getElementById('user-name').textContent = data.email.split('@')[0];
+                        document.getElementById('user-email').textContent = data.email;
+                        document.getElementById('user-id').textContent = 'LDAP User';
+                        
+                        if (data.scopes) {
+                            document.getElementById('user-id').textContent += ` | Scopes: ${data.scopes.join(', ')}`;
+                        }
+                    } else if (data.saml) {
+                        // SAML login
+                        document.getElementById('login-method').textContent = 'SAML';
+                        document.getElementById('saml-fields').classList.remove('hidden');
+                        document.getElementById('all-attributes-section').classList.remove('hidden');
+                        
+                        document.getElementById('user-name').textContent = data.name || data.email.split('@')[0];
+                        document.getElementById('user-email').textContent = data.email;
+                        document.getElementById('user-id').textContent = data.uid || 'SAML User';
+                        document.getElementById('user-display-name').textContent = data.name || '-';
+                        
+                        // Populate attributes table
+                        const tableBody = document.getElementById('attributes-table');
+                        for (const [key, value] of Object.entries(data.attributes)) {
+                            const row = document.createElement('tr');
+                            
+                            const keyCell = document.createElement('td');
+                            keyCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+                            keyCell.textContent = key;
+                            
+                            const valueCell = document.createElement('td');
+                            valueCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+                            valueCell.textContent = Array.isArray(value) ? value.join(', ') : value;
+                            
+                            row.appendChild(keyCell);
+                            row.appendChild(valueCell);
+                            tableBody.appendChild(row);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching auth status:', error);
+                    window.location.href = '/login';
+                });
+        });
+    </script>
+</body>
+</html>
